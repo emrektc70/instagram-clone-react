@@ -1,39 +1,46 @@
+import { useField } from "formik";
 import { useState, useEffect, useRef } from "react";
+import classNames from "classnames";
 
 export default function Input({ label, type = "text", ...props }) {
+  const [field, meta, helpers] = useField(props);
   const [show, setShow] = useState(false);
   const [inputType, setType] = useState(type);
-  const inputRef = useRef();
 
   useEffect(() => {
     if (show) {
       setType("text");
-      inputRef.current.focus();
     } else if (type === "password") {
       setType("password");
-      inputRef.current.focus();
     }
   }, [show]);
   return (
     <label className="block relative flex bg-zinc-50 border rounded-sm focus-within:border-gray-400">
       <input
-        ref={inputRef}
-        required={true}
         type={inputType}
-        className="px-2 outline-none text-sm w-full h-[38px] valid:pt-[10px] peer"
+        className={classNames({
+          "px-2 outline-none text-xs bg-transparent w-full h-[38px]": true,
+          "pt-[10px]": field.value,
+        })}
         {...props}
+        {...field}
       />
-      <small className="absolute top-1/2 left-[9px] cursor-text pointer-events-none text-xs text-gray-400 -translate-y-1/2 transition-all peer-valid:top-2">
+      <small
+        className={classNames({
+          "absolute left-[9px] cursor-text pointer-events-none text-gray-400 -translate-y-1/2 transition-all": true,
+          "text-xs top-1/2": !field.value,
+          "text-[10px] top-2.5": field.value,
+        })}
+      >
         {label}
       </small>
-      {type === "password" && props.value && (
-        <button
+      {type === "password" && field.value && (
+        <div
           onClick={() => setShow((show) => !show)}
-          type="button"
-          className="h-full items-center text-sm font-semibold pr-2"
+          className="h-full cursor-pointer flex select-none items-center text-sm font-semibold pr-2"
         >
           {show ? "Hide" : "Show"}
-        </button>
+        </div>
       )}
     </label>
   );
